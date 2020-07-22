@@ -9,6 +9,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         .file("boot.s")
         .flag("-mabi=ilp32")
         .compile("asm");
-
+    // assemble the `asm.s` file
+    Build::new()
+        .file("c/notmain.c")
+        .compile("libfoo.a");
     Ok(())
 }
