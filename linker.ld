@@ -3,7 +3,7 @@ EXTERN(abort);
 MEMORY
 {
 
-    rom : ORIGIN = 0x20400000, LENGTH = 0x40000
+    rom : ORIGIN = 0x20400000, LENGTH = 0x80000
     ram : ORIGIN = 0x80000000, LENGTH = 0x4000
 }
 

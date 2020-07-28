@@ -41,6 +41,16 @@ void uart_put(char c)
   put32(UART0_TXDATA, c);
 }
 
+unsigned int uart_get ( void ){
+  unsigned int data;
+  while(1)
+    {
+      data=GET32(UART0_RXDATA);
+      if((data&0x80000000)==0) break;
+    }
+  return(data&0xFF);
+}
+
 void notmain(void)
 {
   unsigned int ra;

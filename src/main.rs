@@ -10,6 +10,7 @@ use blisp::LispErr;
 extern crate alloc;
 use alloc::prelude::v1::Vec;
 use alloc::string::String;
+use alloc::vec;
 
 mod my_heap;
     
@@ -17,17 +18,40 @@ mod my_heap;
 extern {
     fn notmain();
     fn uart_put(c: u8);
-}
-fn read_line() -> String{
-    let mut line = String::new();
-//    std::io::stdin().read_line(&mut line).ok();
-    line
+    fn uart_get() ->u32;
 }
 
 fn send(c : u32){
     unsafe {
 	uart_put(c as u8);
     }
+}
+
+fn recv() ->u32{
+    let c;
+    unsafe {
+	c = uart_get();
+	uart_put(c as u8);
+    }
+    return c;
+}
+
+fn read_line() -> String{
+
+    let mut v: Vec<u8>  = Vec::new();
+
+    let mut c = recv();
+    while c!= 13  {
+	if c == 127 {
+	    v.pop();
+	}else{
+	    v.push(c as u8);
+	}
+	c = recv();
+    }
+    
+    let line = String::from_utf8(v).unwrap();
+    line
 }
 
 pub fn my_puts(s : &str) {
