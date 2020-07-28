@@ -3,7 +3,7 @@ EXTERN(abort);
 MEMORY
 {
 
-    rom : ORIGIN = 0x20400000, LENGTH = 0x4000
+    rom : ORIGIN = 0x20400000, LENGTH = 0x40000
     ram : ORIGIN = 0x80000000, LENGTH = 0x4000
 }
 
@@ -22,16 +22,20 @@ SECTIONS
     {
         *(.rdata .rodata. rodata.*);
     } >rom
+    .eh_frame :
+    {
+        *(.eh_frame .eh_frame.*);
+    } >rom
 
     /* data: Writable data */
     .data :
     {
-        *(.data .data.*);
+        *(.data .data.* .sdata);
     } >ram
-
     _bss_start = .;
     .bss :
     {
         *(.bss .bss.*);
     } >ram
+    _bss_end = .;
 }
