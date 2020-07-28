@@ -28,11 +28,6 @@ GET32:
 MCYCLE:
     csrr x10,mcycle
     ret
-
-.globl AMOSWAP
-AMOSWAP:
-    amoswap.w x10, x11, (x10)
-    ret
 	
 .bss
     .skip 4096

@@ -1,13 +1,14 @@
-GCC_HEAD=riscv32-unknown-linux-gnu
+GCC_HEAD=riscv32-unknown-elf
 OBJDUMP=${GCC_HEAD}-objdump
 OBJCOPY=${GCC_HEAD}-objcopy
+BSP=riscv32i-unknown-none-elf
 
-TARGET=target/riscv32imac-unknown-none-elf/debug/hello
+TARGET=target/${BSP}/debug/hello
 all: build lst
 
 
 build:
-	env CC=riscv32-unknown-linux-gnu-gcc cargo build
+	env CC=${GCC_HEAD}-gcc cargo build
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
