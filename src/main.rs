@@ -2,42 +2,49 @@
 #![no_std]
 #![feature(alloc_error_handler)]
 
+extern crate blisp;
+//use blisp;
+use blisp::LispErr;
+
+
 extern crate alloc;
 use alloc::prelude::v1::Vec;
-    
-mod my_heap;
+use alloc::string::String;
 
+mod my_heap;
+    
 #[link(name="foo", kind="static")]
 extern {
     fn notmain();
     fn uart_put(c: u8);
 }
-
-fn print_vec( v : &Vec<u64>){
-    for i in v {
-	print_decimal(*i);
-	my_puts("\n");
-    }
+fn read_line() -> String{
+    let mut line = String::new();
+//    std::io::stdin().read_line(&mut line).ok();
+    line
 }
 
-#[no_mangle]
-pub extern "C" fn __start_rust() -> ! {
-    unsafe { notmain();};
-    hello_main();
-
-    my_puts("Memofy test\n");
-    let mut vec: Vec<u64> = Vec::new();
-    for i in 0..10 {
-	vec.push(i);
-	print_vec(&vec);
-    }
-    
-    loop{}
-}
-
-pub fn putc(c : u8) {
+fn send(c : u32){
     unsafe {
-        uart_put(c);
+	uart_put(c as u8);
+    }
+}
+
+pub fn my_puts(s : &str) {
+    for c in s.bytes() {
+	send(c as u32);
+	if c == '\n' as u8 {
+	    send('\r' as u32);
+	}
+    }
+}
+
+pub fn my_puts_string(s : &String) {
+    for c in s.bytes() {
+	send(c as u32);
+	if c == '\n' as u8 {
+	    send('\r' as u32);
+	}
     }
 }
 
@@ -45,7 +52,7 @@ pub fn print_decimal(mut h: u64) {
     let mut num = [0; 32];
 
     if h == 0 {
-	putc('0' as u8);
+	send('0' as u32);
 	return;
     }
 
@@ -57,18 +64,78 @@ pub fn print_decimal(mut h: u64) {
 	i += 1;
     }
     while i > 0 {
-	putc(num[i - 1] as u8);
+	send(num[i - 1] as u32);
 	i -= 1;
     }
 }
 
-pub fn my_puts(s : &str) {
-    for c in s.bytes() {
-	putc(c as u8);
-	if c == '\n' as u8 {
-	    putc('\r' as u8);
+fn print_err (e: LispErr) {
+    my_puts("error:");
+    print_decimal((e.pos.line + 1) as u64);
+    my_puts(":");
+    print_decimal((e.pos.column + 1) as u64);
+    my_puts(":'");
+    let msg = e.msg.as_str();
+    my_puts(&msg);
+    my_puts("'\n");
+}
+
+fn run_lisp(code: &String) {
+    // initialize
+    match blisp::init(&code) {
+	Ok(exprs) => {
+	    // typing
+	    match blisp::typing(&exprs) {
+		Ok(ctx) => {
+		    my_puts("init code");
+		    my_puts(&code);
+		    my_puts("\n");
+		    run_repl(code, &ctx);
+		}
+		Err(e) => {
+		    print_err(e);
+		}
+	    }
+	}
+	Err(e) => {
+	    print_err(e);
 	}
     }
+}
+
+fn run_repl(code: &String, ctx: &blisp::semantics::Context) {
+    my_puts("CTRL-D to exit\n");
+    loop {
+	my_puts(">>");
+	let line = read_line();
+	my_puts("'");
+	my_puts(&line);
+	my_puts("'\n");
+	let result = blisp::eval(&line, ctx);
+	match result {
+	    Ok(rs) => {
+		for r in &rs {
+		    my_puts("input:\n");
+		    my_puts(&line);
+		    my_puts("\nresult:\n");
+		    my_puts(&r);
+		    my_puts("\n");
+		}
+	    }
+	    Err(e) => {
+		print_err(e);
+	    }
+	}
+    }
+}
+#[no_mangle]
+pub extern "C" fn __start_rust() -> ! {
+    unsafe { notmain();};
+    hello_main();
+    let init = String::from("");
+    run_lisp(&init);
+    
+    loop{}
 }
 
 pub fn hello_main() {

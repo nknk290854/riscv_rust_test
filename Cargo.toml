@@ -4,9 +4,17 @@ version = "0.1.0"
 authors = ["tomoyuki-nakabayashi <tomo.wait.for.it.yuki@gmail.com>"]
 
 [dependencies]
+blisp = { path = "../../blisp" }
+#blisp = { git = "https://github.com/ytakano/blisp.git" }
 
 [build-dependencies]
 cc = "1.0.25"
 
 [features]
 alloc_error_handler=[]
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3

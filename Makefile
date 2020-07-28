@@ -3,12 +3,12 @@ OBJDUMP=${GCC_HEAD}-objdump
 OBJCOPY=${GCC_HEAD}-objcopy
 BSP=riscv32i-unknown-none-elf
 
-TARGET=target/${BSP}/debug/hello
+TARGET=target/${BSP}/release/hello
 all: build lst
 
 
 build:
-	env CC=${GCC_HEAD}-gcc cargo build
+	env CC=${GCC_HEAD}-gcc cargo build  --verbose --release
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
@@ -25,3 +25,6 @@ gdb:
 
 clean:
 	cargo clean
+
+add_target:
+	rustup target add   ${BSP}
