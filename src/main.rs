@@ -1,6 +1,7 @@
 #![no_main]
 #![no_std]
 #![feature(alloc_error_handler)]
+
 extern crate alloc;
 use alloc::prelude::v1::Vec;
     
@@ -85,4 +86,11 @@ pub fn panic(_info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn abort() -> ! {
     loop{}
+}
+
+use core::alloc::Layout;
+
+#[alloc_error_handler]
+fn on_oom(_layout: Layout) -> ! {
+    loop {}
 }

@@ -44,8 +44,3 @@ static HEAP: BumpPointerAlloc = BumpPointerAlloc {
     head: UnsafeCell::new(0x80001000),
     end: 0x80003000
 };
-
-#[alloc_error_handler]
-fn on_oom(_layout: Layout) -> ! {
-    loop {}
-}
