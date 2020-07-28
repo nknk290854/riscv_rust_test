@@ -2,10 +2,8 @@
 #![no_std]
 #![feature(alloc_error_handler)]
 extern crate alloc;
+use linked_list_allocator;
 use alloc::prelude::v1::Vec;
-    
-mod my_heap;
-
 #[link(name="foo", kind="static")]
 extern {
     fn notmain();
@@ -21,9 +19,16 @@ fn print_vec( v : &Vec<u64>){
 
 #[no_mangle]
 pub extern "C" fn __start_rust() -> ! {
+ 
     unsafe { notmain();};
     hello_main();
 
+    let HEAP_START : usize = 0x80001000;
+    let HEAP_SIZE  : usize = 0x1000;
+    unsafe {
+	HEAP_ALLOCATOR.lock().init(HEAP_START, HEAP_START + HEAP_SIZE);
+    }
+    
     my_puts("Memofy test\n");
     let mut vec: Vec<u64> = Vec::new();
     for i in 0..10 {
@@ -85,4 +90,18 @@ pub fn panic(_info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn abort() -> ! {
     loop{}
+}
+
+use linked_list_allocator::LockedHeap;
+
+#[global_allocator]
+static ALLOCATOR: LockedHeap = LockedHeap::empty();
+
+pub fn init_heap() {
+    let heap_start = 0x80001000;
+    let heap_end   = 0x80002000;
+    let heap_size = heap_end - heap_start;
+    unsafe {
+	ALLOCATOR.lock().init(heap_start, heap_size);
+    }
 }
