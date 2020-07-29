@@ -1,9 +1,12 @@
 #![no_main]
 #![no_std]
 #![feature(alloc_error_handler)]
+
 extern crate alloc;
-use linked_list_allocator;
+extern crate linked_list_allocator;
 use alloc::prelude::v1::Vec;
+
+
 #[link(name="foo", kind="static")]
 extern {
     fn notmain();
@@ -22,12 +25,7 @@ pub extern "C" fn __start_rust() -> ! {
  
     unsafe { notmain();};
     hello_main();
-
-    let HEAP_START : usize = 0x80001000;
-    let HEAP_SIZE  : usize = 0x1000;
-    unsafe {
-	HEAP_ALLOCATOR.lock().init(HEAP_START, HEAP_START + HEAP_SIZE);
-    }
+    init_heap();
     
     my_puts("Memofy test\n");
     let mut vec: Vec<u64> = Vec::new();
@@ -104,4 +102,11 @@ pub fn init_heap() {
     unsafe {
 	ALLOCATOR.lock().init(heap_start, heap_size);
     }
+}
+
+use alloc::alloc::Layout;
+
+#[alloc_error_handler]
+fn on_oom(_layout: Layout) -> ! {
+    loop {}
 }
