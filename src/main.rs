@@ -158,11 +158,34 @@ fn run_repl(code: &String, ctx: &blisp::semantics::Context) {
 	}
     }
 }
+
+fn print_vec( v : &Vec<u64>){
+    for i in v {
+	print_decimal(*i);
+	my_puts("\n");
+    }
+}
+
+#[no_mangle]
+pub fn heap_test() {
+    my_puts("Memofy test\n");
+    let mut vec: Vec<u64> = Vec::new();
+    for i in 0..10 {
+	vec.push(i);
+	print_vec(&vec);
+    }
+    my_puts("Memofy done\n");
+}
+
+
+
+
 #[no_mangle]
 pub extern "C" fn __start_rust() -> ! {
     unsafe { notmain();};
     hello_main();
     init_heap();
+    heap_test();
     let init = String::from("");
     run_lisp(&init);
     
