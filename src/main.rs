@@ -15,7 +15,7 @@ use alloc::string::String;
 mod my_heap;
 use my_heap::MyHeap;
 use my_heap::LockedMyHeap;
-
+use linked_list_allocator::LockedHeap;
     
 
 //mod my_heap;
@@ -175,12 +175,15 @@ pub fn hello_main() {
 
 #[global_allocator]
 static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
+//#[global_allocator]
+//static ALLOCATOR:LockedHeap = LockedHeap::empty();
 
 pub fn init_heap() {
     let heap_start = 0x80001000;
     let heap_end   = 0x80003000;
     let heap_size = heap_end - heap_start;
     unsafe {
+	//	ALLOCATOR.lock().init(heap_start, heap_size);
 	ALLOCATOR.init(heap_start, heap_size);
     }
 }
@@ -202,5 +205,6 @@ use core::alloc::Layout;
 
 #[alloc_error_handler]
 fn on_oom(_layout: Layout) -> ! {
+    my_puts("alloc error!!\n");
     loop {}
 }
