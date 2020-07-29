@@ -13,7 +13,7 @@ build:
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
-	${OBJDUMP} -D ${TARGET} >aaa.lst
+	${OBJDUMP} -D hello.img >aaa.lst
 
 qemu:
 	qemu-system-riscv32 -nographic -machine sifive_e -kernel ${TARGET}
