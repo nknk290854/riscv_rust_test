@@ -4,7 +4,7 @@ OBJCOPY=${GCC_HEAD}-objcopy
 #BSP=riscv32i-unknown-none-elf
 BSP=riscv32imac-unknown-none-elf
 
-TARGET=target/${BSP}/release/hello
+TARGET=target/${BSP}/debug/hello
 all: build lst
 
 

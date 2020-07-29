@@ -9,6 +9,10 @@ blisp = { path = "../../blisp" }
 linked_list_allocator = { path = "../../linked-list-allocator", default-features=false}
 
 
+[dependencies.spin]
+version = "0.4"
+
+
 [build-dependencies]
 cc = "1.0.25"
 

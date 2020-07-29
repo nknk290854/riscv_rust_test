@@ -4,7 +4,7 @@
 
 extern crate blisp;
 extern crate linked_list_allocator;
-use linked_list_allocator::LockedHeap;
+extern crate spin;
 
 //use blisp;
 use blisp::LispErr;
@@ -12,7 +12,11 @@ use blisp::LispErr;
 extern crate alloc;
 use alloc::prelude::v1::Vec;
 use alloc::string::String;
-use alloc::vec;
+mod my_heap;
+use my_heap::MyHeap;
+use my_heap::LockedMyHeap;
+
+    
 
 //mod my_heap;
     
@@ -170,11 +174,11 @@ pub fn hello_main() {
 }
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LoockedHeap::empty();
+static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
 
 pub fn init_heap() {
     let heap_start = 0x80001000;
-    let heap_end =   0x80003000;
+    let heap_end   = 0x80003000;
     let heap_size = heap_end - heap_start;
     unsafe {
 	ALLOCATOR.init(heap_start, heap_size);
