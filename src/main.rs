@@ -159,22 +159,45 @@ fn run_repl(code: &String, ctx: &blisp::semantics::Context) {
     }
 }
 
-fn print_vec( v : &Vec<u64>){
+fn print_vec( v : &Vec<u32>){
+    my_puts("[");
     for i in v {
-	print_decimal(*i);
-	my_puts("\n");
+	print_decimal(*i as u64);
+	my_puts(", ");
     }
+    my_puts("]\n");
+    
 }
 
-#[no_mangle]
-pub fn heap_test() {
-    my_puts("Memofy test\n");
-    let mut vec: Vec<u64> = Vec::new();
-    for i in 0..10 {
+
+pub fn gen_heap(s : u32) -> Vec<u32> {
+   my_puts("Memofy test\n");
+    let mut vec: Vec<u32> = Vec::new();
+    for i in 0..s {
 	vec.push(i);
-	print_vec(&vec);
     }
     my_puts("Memofy done\n");
+    vec
+}
+
+pub fn heap_test() {
+    my_puts("Memofy test\n");
+    let mut vec: Vec<Vec<u32>> = Vec::new();
+    for i in 0..10 {
+	let v = gen_heap(i);
+	print_vec(&v);
+	vec.push(v);
+    }
+    for i in 0..10 {
+	let v = &vec[i];
+	my_puts("index:");
+	print_decimal(i as u64);
+	my_puts("=");
+	print_vec(&v);
+	my_puts("\n");
+    }
+    
+    my_puts("Memory test done\n");
 }
 
 
@@ -196,18 +219,18 @@ pub fn hello_main() {
     my_puts("Hello rust world\n");
 }
 
-#[global_allocator]
-static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
 //#[global_allocator]
-//static ALLOCATOR:LockedHeap = LockedHeap::empty();
+//static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
+#[global_allocator]
+static ALLOCATOR:LockedHeap = LockedHeap::empty();
 
 pub fn init_heap() {
     let heap_start = 0x80001000;
-    let heap_end   = 0x80003000;
+    let heap_end   = 0x8002F000;
     let heap_size = heap_end - heap_start;
     unsafe {
-	//	ALLOCATOR.lock().init(heap_start, heap_size);
-	ALLOCATOR.init(heap_start, heap_size);
+	ALLOCATOR.lock().init(heap_start, heap_size);
+	//ALLOCATOR.init(heap_start, heap_size);
     }
 }
 
