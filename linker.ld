@@ -8,9 +8,9 @@ MEMORY
     stack : ORIGIN = 0x80003000, LENGTH = 0x1000
 */
 /*    rom :   ORIGIN = 0x20400000, LENGTH = 0x400000 */
-    rom :   ORIGIN = 0x000000,   LENGTH = 0x400000
-    ram :   ORIGIN = 0x80000000, LENGTH = 0x002000
-    stack : ORIGIN = 0x80002000, LENGTH = 0x002000
+    rom  :  ORIGIN = 0x20000000, LENGTH = 0x10000000
+    ram :   ORIGIN = 0x80000000, LENGTH = 0x30000
+    stack : ORIGIN = 0x80030000, LENGTH = 0x10000
 }
 
 SECTIONS
@@ -19,6 +19,7 @@ SECTIONS
     .init : { KEEP(*(.init)) } >rom
     .text :
     {
+    	*(.boot);
         *(.text. text.*);
 	*(.comment);
     } >rom
@@ -27,11 +28,11 @@ SECTIONS
     .rodata :
     {
         *(.rdata .rodata. rodata.*);
-    } >rom
+    } >ram
     .eh_frame :
     {
         *(.eh_frame .eh_frame.*);
-    } >rom
+    } >ram
 
     /* data: Writable data */
     .data :

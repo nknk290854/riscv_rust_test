@@ -7,16 +7,9 @@ authors = ["tomoyuki-nakabayashi <tomo.wait.for.it.yuki@gmail.com>"]
 blisp = { path = "../../blisp" }
 #blisp = { git = "https://github.com/ytakano/blisp.git" }
 #linked_list_allocator = { path = "../../linked-list-allocator", default-features=false}
-linked_list_allocator = { path = "../../linked-list-allocator", features=["use_spin"]}
+#linked_list_allocator = { path = "../../linked-list-allocator", features=["use_spin"]}
 
 
-[dependencies.spin]
-version = "0.4"
-
-[dependencies.spinning_top]
-version = "0.1.0"
-features = ["nightly"]
-optional = true
 
 [build-dependencies]
 cc = "1.0.25"
@@ -28,4 +21,4 @@ alloc_error_handler = []
 opt-level = 0
 
 [profile.release]
-opt-level = 3
+opt-level = "s"

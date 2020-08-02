@@ -3,8 +3,6 @@
 #![feature(alloc_error_handler)]
 
 extern crate blisp;
-extern crate linked_list_allocator;
-extern crate spin;
 
 //use blisp;
 use blisp::LispErr;
@@ -13,10 +11,6 @@ extern crate alloc;
 use alloc::prelude::v1::Vec;
 use alloc::string::String;
 mod my_heap;
-use my_heap::MyHeap;
-use my_heap::LockedMyHeap;
-use linked_list_allocator::LockedHeap;
-    
 
 //mod my_heap;
     
@@ -207,7 +201,6 @@ pub fn heap_test() {
 pub extern "C" fn __start_rust() -> ! {
     unsafe { notmain();};
     hello_main();
-    init_heap();
     heap_test();
     let init = String::from("");
     run_lisp(&init);
@@ -217,21 +210,6 @@ pub extern "C" fn __start_rust() -> ! {
 
 pub fn hello_main() {
     my_puts("Hello rust world\n");
-}
-
-//#[global_allocator]
-//static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
-#[global_allocator]
-static ALLOCATOR:LockedHeap = LockedHeap::empty();
-
-pub fn init_heap() {
-    let heap_start = 0x80001000;
-    let heap_end   = 0x8002F000;
-    let heap_size = heap_end - heap_start;
-    unsafe {
-	ALLOCATOR.lock().init(heap_start, heap_size);
-	//ALLOCATOR.init(heap_start, heap_size);
-    }
 }
 
 use core::panic::PanicInfo;

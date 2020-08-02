@@ -2,8 +2,9 @@ GCC_HEAD=riscv32-unknown-elf
 OBJDUMP=${GCC_HEAD}-objdump
 OBJCOPY=${GCC_HEAD}-objcopy
 #BSP=riscv32i-unknown-none-elf
-BSP=riscv32imac-unknown-none-elf
-TARGET=target/${BSP}/debug/hello
+BSP=riscv32i-unknown-none-elf
+MODE=release
+TARGET=target/${BSP}/${MODE}/hello
 #MACHINE=sifive_e
 MACHINE=sifive_x
 QEMU=/opt/my_qemu/bin/qemu-system-riscv32
@@ -12,7 +13,7 @@ all: build lst
 
 
 build:
-	env CC=${GCC_HEAD}-gcc cargo build  --verbose --target=${BSP} 
+	env CC=${GCC_HEAD}-gcc cargo build  --verbose --target=${BSP}  --release
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
