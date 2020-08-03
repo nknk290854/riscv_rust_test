@@ -59,9 +59,9 @@ impl LockedMyHeap {
     }
     pub fn init(& self, start_addr: usize, size: usize) {
 	unsafe {
-	    let mut bump = self.lock(); // get a mutable reference
+	    let mut heap = self.lock(); // get a mutable reference
 	    
-	    bump.init(start_addr, size);
+	    heap.init(start_addr, size);
 	}
     }
 
@@ -73,8 +73,8 @@ impl LockedMyHeap {
 unsafe impl GlobalAlloc for LockedMyHeap {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
 	my_puts("alloc\n");
-	let mut bump = self.lock(); // get a mutable reference
-	let r = bump.alloc(layout);
+	let mut heap = self.lock(); // get a mutable reference
+	let r = heap.alloc(layout);
 	print_decimal(r as u64);
 	my_puts("\ndone\n");
 	r
@@ -82,8 +82,8 @@ unsafe impl GlobalAlloc for LockedMyHeap {
 
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
 	my_puts("dealloc\n");
-	let mut bump = self.lock(); // get a mutable reference
-	bump.dealloc(_ptr, _layout);
+	let mut heap = self.lock(); // get a mutable reference
+	heap.dealloc(_ptr, _layout);
 	my_puts("\ndone\n");
     }
 }
