@@ -21,8 +21,8 @@ impl MyHeap {
 	self.heap.init(start_addr, size);
     }
     pub unsafe fn new(heap_bottom: usize, heap_size: usize) -> MyHeap {
-        MyHeap{
-            heap: Heap::new(heap_bottom, heap_size)
+	MyHeap{
+	    heap: Heap::new(heap_bottom, heap_size)
 	}
     }
 
@@ -59,9 +59,9 @@ impl LockedMyHeap {
     }
     pub fn init(& self, start_addr: usize, size: usize) {
 	unsafe {
-	    let mut heap = self.lock(); // get a mutable reference
-	    
-	    heap.init(start_addr, size);
+	    let mut bump = self.lock(); // get a mutable reference
+
+	    bump.init(start_addr, size);
 	}
     }
 

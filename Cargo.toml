@@ -5,7 +5,7 @@ authors = ["tomoyuki-nakabayashi <tomo.wait.for.it.yuki@gmail.com>"]
 
 [dependencies]
 blisp = { path = "../../packages/blisp" }
-linked_list_allocator = { path = "../../packages/linked-list-allocator", features=["use_spin"]}
+linked_list_allocator = { path = "../../packages/linked-list-allocator", default-features=false}
 
 [build-dependencies]
 cc = "1.0.25"
@@ -20,4 +20,5 @@ opt-level = 0
 opt-level = 3
 
 [dependencies.spin]
-version = "0.4"
+version = "0.5.2"
+path="../../packages/spin-rs"
