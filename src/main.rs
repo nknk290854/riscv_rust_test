@@ -4,7 +4,6 @@
 
 extern crate blisp;
 extern crate linked_list_allocator;
-extern crate spin;
 
 //use blisp;
 use blisp::LispErr;
@@ -12,9 +11,9 @@ use blisp::LispErr;
 extern crate alloc;
 use alloc::prelude::v1::Vec;
 use alloc::string::String;
-mod my_heap;
-use my_heap::MyHeap;
-use my_heap::LockedMyHeap;
+//mod my_heap;
+//use my_heap::MyHeap;
+//use my_heap::LockedMyHeap;
 use linked_list_allocator::LockedHeap;
     
 
