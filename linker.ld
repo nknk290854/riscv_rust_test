@@ -1,37 +1,21 @@
-ENTRY(_start);
-EXTERN(abort);
-MEMORY
-{
+OUTPUT_FORMAT("elf32-littleriscv");
+OUTPUT_ARCH("riscv")
 
-    rom : ORIGIN = 0x20400000, LENGTH = 0x4000
-    ram : ORIGIN = 0x80000000, LENGTH = 0x4000
+ENTRY(_start);
+MEMORY {
+/*  ROM : ORIGIN = 0x08000, LENGTH = 32k*/
+  ROM : ORIGIN = 0x00000, LENGTH = 64k
+  RAM : ORIGIN = 0x10000, LENGTH = 32k
 }
 
 SECTIONS
 {
-    /* text: Program code section */
-    .init : { KEEP(*(.init)) } >rom
-    .text :
-    {
-        *(.text. text.*);
-	*(.comment);
-    } >rom
-
-    /* rodata: Read-only data */
-    .rodata :
-    {
-        *(.rdata .rodata. rodata.*);
-    } >rom
-
-    /* data: Writable data */
-    .data :
-    {
-        *(.data .data.*);
-    } >ram
-
-    _bss_start = .;
-    .bss :
-    {
-        *(.bss .bss.*);
-    } >ram
+  .init : { KEEP(*(.init)) } >ROM
+  .text : { *(.text) } > ROM
+  .rodata : { *(.rodata) } > RAM
+  .data : { *(.data) } > RAM
+  . = ALIGN(4);
+  __bss_start = .;
+  .bss : {*(.bss)} > RAM
+  __bss_end = . ;
 }

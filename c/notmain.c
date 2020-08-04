@@ -1,74 +1,112 @@
 
 //-------------------------------------------------------------------
 //-------------------------------------------------------------------
-void PUT32( unsigned int, unsigned int);
-unsigned int GET32 ( unsigned int );
-void  dummy ( unsigned int );
-unsigned int MCYCLE ( void );
-unsigned int AMOSWAP ( unsigned int, unsigned int);
+#include <poyoio.h>
 
-#define GPIOBASE 0x10012000
-#define GPIO_VALUE          (GPIOBASE+0x00)
-#define GPIO_INPUT_EN       (GPIOBASE+0x04)
-#define GPIO_OUTPUT_EN      (GPIOBASE+0x08)
-#define GPIO_PORT           (GPIOBASE+0x0C)
-#define GPIO_PUE            (GPIOBASE+0x10)
-#define GPIO_OUT_XOR        (GPIOBASE+0x40)
-#define GPIO_IOF_EN         (GPIOBASE+0x38)
-#define GPIO_IOF_SEL        (GPIOBASE+0x3C)
+void digital_write(int pin, int vol) {
 
-#define UART0BASE       0x10013000
-#define UART0_TXDATA    (UART0BASE+0x00)
-#define UART0_RXDATA    (UART0BASE+0x04)
-#define UART0_TXCTRL    (UART0BASE+0x08)
-#define UART0_RXCTRL    (UART0BASE+0x0C)
-#define UART0_IE        (UART0BASE+0x10)
-#define UART0_IP        (UART0BASE+0x14)
-#define UART0_DIV       (UART0BASE+0x18)
+    volatile char* output_addr = GPO_WRADDR;
+    volatile int* input_addr = GPO_RDADDR;
 
-#define MTIME 0x0200BFF8
-
-#define get32(a) (*((unsigned *)a))
-#define put32(a, b) (*((unsigned *)a) = b)
-
-void uart_put(char c)
-{
-  /* wait if queue is full. */
-  while (1) {
-    if ((get32(UART0_TXDATA)&0x80000000) == 0)
-      break;
-  }
-  put32(UART0_TXDATA, c);
+    // 0ビット目は0ピンの状態、1ビット目は1ピンの状態というように値を格納しているので、
+    // ピンの値に応じたビットのみを変更する
+    if (vol == 1) {
+        *output_addr = (*input_addr | (1 << pin));
+    } else if (vol == 0) {
+        *output_addr = (*input_addr & ~(1 << pin));
+    }
 }
 
-void notmain(void)
-{
-  unsigned int ra;
 
-  //11644342/115200 = 101
-  ra = get32(GPIO_IOF_SEL);
-  ra &= ~(1<<16); //UART0_RX
-  ra &= ~(1<<17); //UART0_TX
-  put32(GPIO_IOF_SEL, ra);
+int digital_read(int pin) {
 
-  ra = GET32(GPIO_IOF_EN);
-  ra |= (1<<16); //UART0_RX
-  ra |= (1<<17); //UART0_TX
+    volatile int* input_addr = GPI_ADDR;
+    int vol;
 
-  put32(UART0_DIV, 101-1);
-  put32(UART0_TXCTRL, 0x00000003); //txen=1, nstop=1
+    // 0ビット目は0ピンの状態、1ビット目は1ピンの状態というように値を格納しているので、
+    // ピンの値に応じて特定ビットを読み出す
+    vol = (*input_addr >> pin) & 1;
 
-  uart_put('h');
-  uart_put('e');
-  uart_put('l');
-  uart_put('l');
-  uart_put('o');
-  uart_put(' ');
-  uart_put('w');
-  uart_put('o');
-  uart_put('r');
-  uart_put('l');
-  uart_put('d');
-  uart_put('\n');
+    return vol;
+}
+
+
+void serial_write(char c) {
+
+    volatile char* output_addr = UART_TX_ADDR;
+
+    delay(UART_TX_DELAY_TIME);
+    *output_addr = c;
+}
+
+
+char serial_read() {
+    
+    volatile int* input_addr = UART_RX_ADDR;
+    char c;
+
+    c = *input_addr;
+    
+    return c;
+}
+
+
+void delay(unsigned int time) {
+    
+    volatile unsigned int* input_addr = HARDWARE_COUNTER_ADDR;
+    unsigned int start_cycle = *input_addr;
+
+    while (time > 0) {
+        while ((*input_addr - start_cycle) >= HARDWARE_COUNT_FOR_ONE_MSEC) {
+            time--;
+            start_cycle += HARDWARE_COUNT_FOR_ONE_MSEC;
+        }
+        if (*input_addr < start_cycle) {
+            start_cycle = *input_addr;
+        }
+    }
+}
+
+
+int hello_world(){
+  serial_write('H');
+  serial_write('E');
+  serial_write('L');
+  serial_write('L');
+  serial_write('O');
+  serial_write(' ');
+  serial_write('W');
+  serial_write('O');
+  serial_write('R');
+  serial_write('L');
+  serial_write('D');
+}
+
+int not_main() {
+
+  int i=0;
+  hello_world();
+    while(1){
+	hello_world();
+        digital_write(0, i&1);
+        digital_write(1, (i>>1)&1);
+	digital_write(2, (i>>2)&1);
+	digital_write(3, (i>>4)&1);
+        delay(1000);
+	i++;
+    }
+
+    return 0;
 
 }
+
+void uart_put(char c){
+  serial_write(c);
+}
+
+void notmain() {
+  digital_write(0, 1);
+  digital_write(1, 1);
+  not_main();
+}
+
