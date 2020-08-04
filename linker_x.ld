@@ -1,9 +1,9 @@
 EXTERN(abort);
 MEMORY
 {
-    rom  :  ORIGIN = 0x20000000, LENGTH = 0x10000000
-    ram :   ORIGIN = 0x80000000, LENGTH = 0x30000
-    stack : ORIGIN = 0x80030000, LENGTH = 0x10000
+    rom  :  ORIGIN = 0x20000000, LENGTH = 0x80000
+    ram :   ORIGIN = 0x80000000, LENGTH = 0xC000
+    stack : ORIGIN = 0x8000C000, LENGTH = 0x4000
 }
 
 SECTIONS
@@ -44,7 +44,7 @@ SECTIONS
     _heap_start = .;
     .stack : {
     	    _stack_start = .;
-	    . += 0x10000;
+	    . += 0x4000;
     	    _stack_end = .;
     } >stack
 }

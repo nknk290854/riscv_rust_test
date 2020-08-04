@@ -225,8 +225,8 @@ static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
 //static ALLOCATOR:LockedHeap = LockedHeap::empty();
 
 pub fn init_heap() {
-    let heap_start = 0x80001000;
-    let heap_end   = 0x8002F000;
+    let heap_start = 0x80000100;
+    let heap_end   = 0x8000C000;
     let heap_size = heap_end - heap_start;
     unsafe {
 //	ALLOCATOR.lock().init(heap_start, heap_size);

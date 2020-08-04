@@ -7,7 +7,7 @@ _start:
 
         li t0,0x20000000
 	li sp,0
-	li sp,0x80040000
+	li sp,0x80010000
 	/*
     lui     sp, %hi(stacks + 0xFF00)
     ori     sp, sp, %lo(stacks + 0xFF00)

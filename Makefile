@@ -4,7 +4,8 @@ OBJCOPY=${GCC_HEAD}-objcopy
 BSP=riscv32i-unknown-none-elf
 #BSP=riscv32imac-unknown-none-elf
 #OUT=release
-OUT=debug
+OUT=release
+relase=--release
 TARGET=target/${BSP}/${OUT}/hello
 #MACHINE=sifive_e
 MACHINE=sifive_x
@@ -14,7 +15,7 @@ all: build lst
 
 
 build:
-	env CC=${GCC_HEAD}-gcc cargo build  --verbose --target=${BSP}  --${relase}
+	env CC=${GCC_HEAD}-gcc cargo build  --verbose --target=${BSP}  ${relase}
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
