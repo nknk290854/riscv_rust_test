@@ -12,6 +12,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // assemble the `asm.s` file
     Build::new()
         .file("c/notmain.c")
+	.include("c")
         .compile("libfoo.a");
     Ok(())
 }

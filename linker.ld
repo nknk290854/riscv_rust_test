@@ -17,33 +17,37 @@ SECTIONS
 {
     /* text: Program code section */
     .init : { KEEP(*(.init)) } >rom
+    . = ALIGN( 0x10 );
     .text :
     {
         *(.text. text.*);
 	*(.comment);
     } >rom
-
+    . = ALIGN( 0x10 );
     /* rodata: Read-only data */
     .rodata :
     {
         *(.rdata .rodata. rodata.*);
     } >rom
+    . = ALIGN( 0x10 );
     .eh_frame :
     {
         *(.eh_frame .eh_frame.*);
     } >rom
-
+    . = ALIGN( 0x10 );
     /* data: Writable data */
     .data :
     {
         *(.data .data.* .sdata);
     } >ram
+   . = ALIGN( 0x10 );
     _bss_start = .;
     .bss :
     {
         *(.bss .bss.*);
     } >ram
     _bss_end = .;
+   . = ALIGN( 0x10 );
     _heap_start = .;
     .stack : {
     	    _stack_start = .;

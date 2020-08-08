@@ -72,18 +72,13 @@ impl LockedMyHeap {
 
 unsafe impl GlobalAlloc for LockedMyHeap {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-	my_puts("alloc\n");
 	let mut heap = self.lock(); // get a mutable reference
 	let r = heap.alloc(layout);
-	print_decimal(r as u64);
-	my_puts("\ndone\n");
 	r
     }
 
     unsafe fn dealloc(&self, _ptr: *mut u8, _layout: Layout) {
-	my_puts("dealloc\n");
 	let mut heap = self.lock(); // get a mutable reference
 	heap.dealloc(_ptr, _layout);
-	my_puts("\ndone\n");
     }
 }

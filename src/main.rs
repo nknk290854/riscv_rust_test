@@ -25,6 +25,10 @@ extern {
     fn notmain();
     fn uart_put(c: u8);
     fn uart_get() ->u32;
+    fn delay(t : u32);
+    fn digital_write(pin : u32, vol: u32);
+    fn get_heap_start() ->u32;
+    fn get_heap_end() ->u32;
 }
 
 fn send(c : u32){
@@ -37,7 +41,6 @@ fn recv() ->u32{
     let c;
     unsafe {
 	c = uart_get();
-	uart_put(c as u8);
     }
     return c;
 }
@@ -46,12 +49,19 @@ fn read_line() -> String{
 
     let mut v: Vec<u8>  = Vec::new();
 
-    let mut c = recv();
+    let mut c = recv() & 255;
     while c!= 13  {
 	if c == 127 {
 	    v.pop();
-	}else{
+	}
+	else if c == 21 {
+	    v.clear();
+	    send('\r' as u32);
+	    send('\n' as u32);
+	}
+	else if(c!=0){
 	    v.push(c as u8);
+	    send(c);
 	}
 	c = recv();
     }
@@ -134,7 +144,28 @@ fn run_lisp(code: &String) {
 }
 
 fn run_repl(code: &String, ctx: &blisp::semantics::Context) {
+    my_puts("eval");
+    let line = String::from("(+ 10 20)");
+    let result = blisp::eval(&line, ctx);
+    match result {
+	Ok(rs) => {
+	    for r in &rs {
+		my_puts("input:\n");
+		my_puts(&line);
+		my_puts("\nresult:\n");
+		my_puts(&r);
+		my_puts("\n");
+	    }
+	}
+	Err(e) => {
+	    print_err(e);
+	}
+    }
+
     my_puts("CTRL-D to exit\n");
+
+
+    
     loop {
 	my_puts(">>");
 	let line = read_line();
@@ -208,7 +239,7 @@ pub extern "C" fn __start_rust() -> ! {
     unsafe { notmain();};
     hello_main();
     init_heap();
-    heap_test();
+//    heap_test();
     let init = String::from("");
     run_lisp(&init);
     
@@ -225,8 +256,10 @@ static ALLOCATOR:LockedMyHeap = LockedMyHeap::empty();
 //static ALLOCATOR:LockedHeap = LockedHeap::empty();
 
 pub fn init_heap() {
-    let heap_start = 0x80000100;
+    let heap_start = 0x80004000;
     let heap_end   = 0x8000C000;
+//    unsafe {heap_start = get_heap_start();}
+//    unsafe {heap_end   = get_heap_end();}
     let heap_size = heap_end - heap_start;
     unsafe {
 //	ALLOCATOR.lock().init(heap_start, heap_size);

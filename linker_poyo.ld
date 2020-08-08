@@ -1,9 +1,13 @@
+ENTRY(_start)
 EXTERN(abort);
+
+_Min_heap_size  = 0x8000;
+_Min_stack_size = 0x8000;
+
 MEMORY
 {
-    rom  :  ORIGIN = 0x20000000, LENGTH = 0x80000
-    ram :   ORIGIN = 0x80000000, LENGTH = 0xC000
-    stack : ORIGIN = 0x8000C000, LENGTH = 0x4000
+    rom   : ORIGIN = 0x00000000, LENGTH = 0x80000
+    ram   : ORIGIN = 0x80000000, LENGTH = 0x10000
 }
 
 SECTIONS
@@ -44,11 +48,9 @@ SECTIONS
         *(.bss .bss.*);
     } >ram
     _bss_end = .;
+    _heap_start = . ;
+    . += _Min_heap_size;
+    _heap_end = .;
     . = ALIGN( 0x10 );
-    _heap_start = .;
-    .stack : {
-    	    _stack_start = .;
-	    . += 0x4000;
-    	    _stack_end = .;
-    } >stack
+    .riscv.attributes 0: { *(.riscv.attributes) }
 }

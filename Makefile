@@ -10,12 +10,34 @@ TARGET=target/${BSP}/${OUT}/hello
 #MACHINE=sifive_e
 MACHINE=sifive_x
 QEMU=/opt/my_qemu/bin/qemu-system-riscv32
+TOOLS_ROOT = ../tools
+TARGET_DIR = ../hex
+#HEX_CONVERTER = python3 $(TOOLS_ROOT)/hex_converter.py
+HEX_CONVERTER = perl $(TOOLS_ROOT)/split.pl
 
 all: build lst
 
 
-build:
+build: ${TARGET}
+
+${TARGET}:
 	env CC=${GCC_HEAD}-gcc cargo build  --verbose --target=${BSP}  ${relase}
+
+app.bin code.bin data.bin app.srec app.dump: ${TARGET}
+	$(OBJDUMP) -D $< >app.dump
+	$(OBJCOPY) -g -S --srec-forceS3 -O srec $< app.srec
+	$(OBJCOPY) -j .init -j .text -g -S --srec-forceS3 -O srec $< code.srec
+	$(OBJCOPY) -j .rodata -j .eth_frame -j .data -g -S --srec-forceS3 -O srec $< data.srec
+	$(OBJCOPY) -j .init -j .text -g -S -O binary $< code.bin
+	$(OBJCOPY) -j .rodata -j .eth_frame -j .data -g -S -O binary $< data.bin
+
+code.hex data.hex: app.srec
+	${HEX_CONVERTER} <app.srec code.hex data >hex.log
+
+
+deploy: code.hex data.hex
+	cp  *.hex ${TARGET_DIR}
+
 
 lst:
 	${OBJCOPY} -g ${TARGET} hello.img
@@ -32,6 +54,7 @@ gdb:
 
 clean:
 	cargo clean
+	rm -f *.hex *.dump *.lst *.img *.bin *.srec
 
 add_target:
 	rustup target add   ${BSP}
